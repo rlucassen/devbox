@@ -50,16 +50,16 @@ ENV HOME=/home/dev
 # per tool), and a host-side mount there would otherwise shadow an in-image install.
 ENV NVM_DIR=/opt/nvm
 
-# nvm + latest LTS node, then Claude Code CLI via npm. Binaries get symlinked into
+# nvm + latest LTS node, then Claude Code, Codex, Functions Core Tools and OpenSpec via npm. Binaries get symlinked into
 # /usr/local/bin (already on PATH everywhere, incl. non-interactive `docker exec`,
 # and untouched by the $HOME mount) since npm's own bin dir lives under $NVM_DIR.
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash \
     && . "$NVM_DIR/nvm.sh" \
     && nvm install --lts \
     && nvm alias default 'lts/*' \
-    && npm install -g @anthropic-ai/claude-code azure-functions-core-tools@4 @openai/codex --unsafe-perm true \
+    && npm install -g @anthropic-ai/claude-code azure-functions-core-tools@4 @openai/codex @fission-ai/openspec --unsafe-perm true \
     && NODE_BIN_DIR="$(dirname "$(nvm which default)")" \
-    && for bin in node npm npx claude func codex; do sudo ln -sf "$NODE_BIN_DIR/$bin" /usr/local/bin/"$bin"; done
+    && for bin in node npm npx claude func codex openspec; do sudo ln -sf "$NODE_BIN_DIR/$bin" /usr/local/bin/"$bin"; done
 
 # Make the `nvm` shell function itself available in interactive shells regardless
 # of what's bind-mounted over $HOME (system-wide bashrc, not ~/.bashrc).
